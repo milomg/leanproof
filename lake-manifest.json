@@ -1,4 +1,5 @@
-{"version": 3,
+{"version": 4,
+ "packagesDir": "./lake-packages",
  "packages":
  [{"git":
    {"url": "https://github.com/xubaiw/CMark.lean",
@@ -9,13 +10,13 @@
   {"git":
    {"url": "https://github.com/leanprover/lake",
     "subDir?": null,
-    "rev": "86a95c342bfb85babaf41f593c73b49d5a13ca21",
+    "rev": "d0b530530f14dde97a547b03abf87eee06360d60",
     "name": "lake",
     "inputRev?": "master"}},
   {"git":
    {"url": "https://github.com/leanprover/doc-gen4",
     "subDir?": null,
-    "rev": "69d48b174dbe404f37fe7e572de12f0c21992729",
+    "rev": "09dbebed9ca85368152bb5146ef6f1271b1be425",
     "name": "doc-gen4",
     "inputRev?": "main"}},
   {"git":
@@ -27,7 +28,7 @@
   {"git":
    {"url": "https://github.com/leanprover-community/mathlib4.git",
     "subDir?": null,
-    "rev": "2aba5647ed317273973d0dde9a9d852a5f21c26c",
+    "rev": "12b2a54d1ce340842f1d1d3aff482e98bcbec124",
     "name": "mathlib",
     "inputRev?": null}},
   {"git":
@@ -39,13 +40,13 @@
   {"git":
    {"url": "https://github.com/JLimperg/aesop",
     "subDir?": null,
-    "rev": "c6c82caf9f758587f9fdea813db168e886ec3044",
+    "rev": "645e92db52499582bb31984396a5e41772241012",
     "name": "aesop",
     "inputRev?": "master"}},
   {"git":
    {"url": "https://github.com/hargonix/LeanInk",
     "subDir?": null,
-    "rev": "9f3101452135964ac9107ec8e9910bfd14022bbc",
+    "rev": "2447df5cc6e48eb965c3c3fba87e46d353b5e9f1",
     "name": "leanInk",
     "inputRev?": "doc-gen"}},
   {"git":
@@ -57,6 +58,6 @@
   {"git":
    {"url": "https://github.com/leanprover/std4",
     "subDir?": null,
-    "rev": "e16d8b988464b27230d15e73b9517157e4a55b94",
+    "rev": "7977f08b1c427b4e8070ba4cc1f599617ebda867",
     "name": "std",
     "inputRev?": "main"}}]}
