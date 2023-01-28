@@ -3,4 +3,5 @@ vscode:
     - leanprover.lean4
 
 tasks:
-  - init: bash -c 'curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain leanprover/lean4:nightly && lake exe csc' && exit
+  - init: bash -c 'curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y --default-toolchain leanprover/lean4:nightly' && exit
+  - command: code Main.lean
