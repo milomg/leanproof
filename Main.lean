@@ -12,7 +12,7 @@ theorem one_not_even : ¬(∃ y : Nat, 1 = 2 * y) := by
     simp
     intro
     contradiction
-  
+
 theorem l1 (x : Nat) : Xor' (∃ y: Nat, x = 2 * y) (∃ y : Nat, x = 2 * y + 1) := by
   induction x with
   | zero =>
@@ -68,7 +68,7 @@ theorem l5 (q : Nat) : (∃ y: Nat, q * q = 2 * y + 1) -> (∃ y: Nat, q = 2 * y
     | Or.inl x1 =>
       have q_squared_not_even := And.right h1
       match (And.left x1) with
-      | Exists.intro x q_even => 
+      | Exists.intro x q_even =>
         have q_squared_even : ∃ z : Nat, q * q = 2 * z := by
           apply Exists.intro (2 * x * x)
           rw [q_even]
@@ -83,7 +83,7 @@ theorem q3 (n : Nat) : (∃ q: Nat, q * q = 2 * n + 1) -> (∃ y: Nat, n + 1 = y
     | Exists.intro r hr =>
       conv at y =>
         simp
-        rw [hr, right_distrib, one_mul, ← add_assoc, 
+        rw [hr, right_distrib, one_mul, ← add_assoc,
             add_right_cancel_iff, mul_assoc, ← left_distrib]
         simp
       apply Exists.intro r
