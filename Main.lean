@@ -1,6 +1,7 @@
 import Mathlib.Tactic.Ring
 import Mathlib.Data.Nat.Basic
 import Mathlib.Algebra.Ring.Basic
+import Mathlib.Algebra.Free
 
 theorem one_not_even : ¬(∃ y : Nat, 1 = 2 * y) := by
   simp
@@ -27,10 +28,9 @@ theorem l1 (x : Nat) : Xor' (∃ y: Nat, x = 2 * y) (∃ y : Nat, x = 2 * y + 1)
       simp
       constructor
       . apply (And.left a)
-      . intro x
-        intro hx
-        match (And.left a) with
+      . match (And.left a) with
         | Exists.intro y hy =>
+          intro x hx
           have one_is_even : ∃ z : Nat, 1 = 2 * z := by
             apply Exists.intro (x - y)
             rw [Nat.mul_sub_left_distrib, ← hx, hy]
@@ -41,8 +41,7 @@ theorem l1 (x : Nat) : Xor' (∃ y: Nat, x = 2 * y) (∃ y : Nat, x = 2 * y + 1)
       apply Or.inl
       simp
       constructor
-      . have c := (And.left a)
-        match c with
+      . match (And.left a) with
         | Exists.intro y hy =>
           apply Exists.intro (y + 1)
           rw [hy, left_distrib]
@@ -89,6 +88,16 @@ theorem q3 (n : Nat) : (∃ q: Nat, q * q = 2 * n + 1) -> (∃ y: Nat, n + 1 = y
       apply Exists.intro r
       rw [← y]
       ring
+
+
+variable {α : Type u}
+theorem a4 : (∀ x y: FreeMagma α, (x*(x*y)=y)∧ ((y*x)*x=y)) -> (∀ x y: FreeMagma α, x*y=y*x) := by
+  intro h1 x y
+  rw [← (And.left (h1 y (x * y)))]
+  conv in (y * (x * y)) =>
+    arg 1
+    rw [← And.left (h1 x y)]
+  rw [And.right (h1 (x * y) x)]
 
 def main : IO Unit :=
   IO.println s!"Hello, world!"
