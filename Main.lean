@@ -99,5 +99,28 @@ theorem a4 : (∀ x y: FreeMagma α, (x*(x*y)=y)∧ ((y*x)*x=y)) -> (∀ x y: Fr
     rw [← And.left (h1 x y)]
   rw [And.right (h1 (x * y) x)]
 
+
+theorem q5 (F : Nat → Nat → Nat) : (∀ n : ℕ, (F 0 n) = n + 1) -> (∀m : ℕ, F (m+1) 0 = F m 1) -> (∀ m : ℕ , ∀ n : ℕ , F (m+1) (n+1) = F m (F (m+1) n)) -> (∀ m : ℕ, ∀ n : ℕ, F m n > n) := by
+  intros x y z m
+  induction m with
+  | zero =>
+    intro n
+    rw [x]
+    simp
+  | succ a ha =>
+    intro n
+    induction n with
+    | zero =>
+      rw [y a]
+      have hb := ha 1
+      have hc : (1>0) := by simp
+      apply Nat.lt_trans hc hb
+    | succ b hb =>
+      rw [z a b]
+      have hc := ha (F (a+1) b)
+      have hd := Nat.succ_le_of_lt hb
+      apply Nat.lt_of_le_of_lt hd hc
+
+
 def main : IO Unit :=
   IO.println s!"Hello, world!"
