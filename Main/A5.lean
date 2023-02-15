@@ -106,6 +106,7 @@ theorem log2_of_2kj (k : ℕ) (j : ℕ) (h : j<2^k): Nat.log2 (2 ^ k+j) = k := b
 theorem can_split (n:ℕ): (∃ k:ℕ,∃j:ℕ , j<2^k∧ Nat.succ n=2^k+j ):= by
   apply Exists.intro (Nat.log2 (Nat.succ  n))
   apply Exists.intro (Nat.succ n-2^Nat.log2 (Nat.succ n))
+  have two_eq_succ_one : Nat.succ 1=2 := by simp
   have x:Nat.succ n≥ 2^Nat.log2 (Nat.succ n) := by
     apply Nat.strong_rec_on n
     simp
@@ -114,52 +115,49 @@ theorem can_split (n:ℕ): (∃ k:ℕ,∃j:ℕ , j<2^k∧ Nat.succ n=2^k+j ):= b
     unfold Nat.log2
     split_ifs
     . have h1 : (n+1)/2-1<n:= by 
-        
-          have ngz : n>0:= by 
+        have ngz : n>0:= by 
+          apply by_contradiction
+          have t:n+1≥2:= by assumption
+          simp
+          intro nz
+          rw [nz] at t
+          contradiction 
+        match (Nat.even_or_odd n) with
+        | Or.inl a => 
+          have _ : Odd (n+1) := by
             apply by_contradiction
-            have t:n+1≥2:= by assumption
             simp
-            intro nz
-            rw [nz] at t
-            contradiction 
-          match (Nat.even_or_odd n) with
-          | Or.inl a => 
-            have _ : Odd (n+1) := by
-              apply by_contradiction
+            rw [Nat.even_add_one]
+            tauto
+          have thing : ((n+1) / 2 )*2+1 < n*2+1:=by
+            rw [Nat.div_two_mul_two_add_one_of_odd]
+            simp
+            apply lt_mul_right
+            assumption
+            simp
+            assumption
+          simp at thing
+          have t:= Nat.sub_le ((n+1)/2) 1
+          apply Nat.lt_of_le_of_lt t thing
+        | Or.inr a =>
+          have _ : Even (n+1) := by
+            rw [Nat.even_add_one]
+            rw [← Nat.odd_iff_not_even]
+            assumption
+          have thing : ((n+1) / 2  - 1)*2 < n*2:=by
+            rw [Nat.mul_sub_right_distrib]
+            rw [Nat.div_two_mul_two_of_even]
+            simp
+            have z1 : 0<1:= by simp
+            have t := Nat.sub_lt (ngz) z1
+            have t2:n≤n*2 := by 
               simp
-              rw [Nat.even_add_one]
-              tauto
-            have thing : ((n+1) / 2 )*2+1 < n*2+1:=by
-              rw [Nat.div_two_mul_two_add_one_of_odd]
-              simp
-              apply lt_mul_right
-              assumption
-              simp
-              assumption
-            simp at thing
-            have t:= Nat.sub_le ((n+1)/2) 1
-            apply Nat.lt_of_le_of_lt t thing
-          | Or.inr a =>
-            have _ : Even (n+1) := by
-              rw [Nat.even_add_one]
-              rw [← Nat.odd_iff_not_even]
-              assumption
-            have thing : ((n+1) / 2  - 1)*2 < n*2:=by
-              rw [Nat.mul_sub_right_distrib]
-              rw [Nat.div_two_mul_two_of_even]
-              simp
-              have z1 : 0<1:= by simp
-              have t := Nat.sub_lt (ngz) z1
-              have t2:n≤n*2 := by 
-                simp
-                have two_eq_succ_one : Nat.succ 1=2 := by simp
-                rw [← two_eq_succ_one, Nat.mul_succ]
-                apply Nat.le_add_left (n)
-              apply Nat.lt_of_lt_of_le t t2 
-              assumption
-            simp at thing
-            apply thing
-        
+              rw [← two_eq_succ_one, Nat.mul_succ]
+              apply Nat.le_add_left (n)
+            apply Nat.lt_of_lt_of_le t t2 
+            assumption
+          simp at thing
+          apply thing
       have h2 := ih ((n+1)/2 - 1) h1
       simp at h2
       rw [Nat.succ_eq_add_one] at h2
@@ -199,7 +197,19 @@ theorem can_split (n:ℕ): (∃ k:ℕ,∃j:ℕ , j<2^k∧ Nat.succ n=2^k+j ):= b
         assumption
     . simp
   apply And.intro
-  . sorry
+  . have x: Nat.succ n - 2 ^ Nat.log2 (Nat.succ n) + 2 ^ Nat.log2 (Nat.succ n) < 2 ^ Nat.log2 (Nat.succ n) + 2 ^ Nat.log2 (Nat.succ n) := by
+      have y:Nat.succ n - 2 ^ Nat.log2 (Nat.succ n) + 2 ^ Nat.log2 (Nat.succ n)=Nat.succ n := by
+        rw [Nat.sub_add_cancel x]
+      rw [y]
+      ring
+      apply Nat.strong_rec_on n
+      intros n ih
+      cases n with
+      | zero => simp
+      | succ n =>
+        sorry
+    simp at x
+    apply x
   . match (Nat.le.dest x) with
     | Exists.intro k hk =>
       conv => 
