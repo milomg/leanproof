@@ -681,4 +681,17 @@ theorem q6a : ∀ k:ℕ,∀ j:ℕ,j<2^k→ f (2^k+j) = g (2^k+j) := by
             apply jm1e
           simp at x
           apply x
-    
+
+theorem q6 (n : ℕ) : f n = g n := by
+  cases n with
+  | zero => simp
+  | succ n =>
+    have x := can_split n
+    apply Exists.elim x
+    intros k x
+    apply Exists.elim x
+    intros j x
+    match x with
+    | And.intro lhs rhs =>
+      rw [rhs]
+      apply q6a k j lhs
