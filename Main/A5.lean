@@ -207,7 +207,124 @@ theorem can_split (n:ℕ): (∃ k:ℕ,∃j:ℕ , j<2^k∧ Nat.succ n=2^k+j ):= b
       cases n with
       | zero => simp
       | succ n =>
-        sorry
+        unfold Nat.log2
+        have ooe: Even (1+1) := by simp
+        split_ifs
+        . match (Nat.even_or_odd n) with
+          | Or.inl a =>
+            have n2n : n/2<Nat.succ n := by 
+              have t: n<Nat.succ n := by simp
+              have t2: n/2*2≤  n*2 := by
+                rw [Nat.div_two_mul_two_of_even]
+                cases n with
+                | zero => simp
+                | succ n => 
+                  apply Nat.le_of_lt
+                  apply lt_mul_right
+                  simp
+                  simp
+                apply a              
+              simp at t2
+              apply Nat.lt_of_le_of_lt t2 t
+            
+            have t := ih (n/2) n2n
+            
+            have o: Nat.succ (Nat.succ n) / 2*2 = Nat.succ (n/2)*2 := by
+              rw [Nat.succ_eq_add_one, Nat.succ_eq_add_one]
+              rw [add_assoc]
+              have n2 : Even (n+(1+1)):= by
+                rw [Nat.even_add]
+                tauto
+              
+              rw [Nat.div_two_mul_two_of_even]
+              simp
+              rw [add_mul]
+              rw [Nat.div_two_mul_two_of_even]
+              assumption
+              assumption
+            simp at o
+            rw [pow_succ]
+            rw [← o] at t
+            have p := Nat.add_lt_add t t
+            have m : Even (Nat.succ (Nat.succ n)) := by 
+              rw [Nat.succ_eq_add_one, add_assoc]
+              rw [Nat.even_add]
+              tauto
+            conv at p => 
+              ring
+              rw [Nat.div_two_mul_two_of_even]
+              rfl
+              apply m
+            ring
+            apply p
+          | Or.inr a =>
+            have o: Nat.succ (Nat.succ n) / 2*2+1 = Nat.succ (n/2)*2+1 := by
+              rw [Nat.succ_eq_add_one, Nat.succ_eq_add_one]
+              rw [Nat.div_two_mul_two_add_one_of_odd]
+              rw [add_mul]
+              conv =>
+                rhs
+                rw [add_assoc]
+                congr
+                rfl
+                rw [add_comm]
+              rw [← add_assoc]
+              rw [Nat.div_two_mul_two_add_one_of_odd]
+              apply a
+              have n2 : Odd (n+(1+1)):= by
+                rw [Nat.odd_add]
+                tauto
+              rw [add_assoc]
+              apply n2
+            simp at o
+            rw [o]
+
+            have n2n : n/2<Nat.succ n := by 
+              have t: n<Nat.succ n := by simp
+              have t2: n/2*2+1≤  n*2 := by
+                rw [Nat.div_two_mul_two_add_one_of_odd]
+                cases n with
+                | zero => simp
+                | succ n => 
+                  apply Nat.le_of_lt
+                  apply lt_mul_right
+                  simp
+                  simp
+                apply a
+              have t3 := Nat.le_trans t2 (Nat.le_add_right (n*2) 1)
+              simp at t3
+              apply Nat.lt_of_le_of_lt t3 t
+            
+            have t := ih (n/2) n2n
+            have t2:= Nat.succ_le_of_lt t
+            rw [pow_succ]
+            rw [← o] at t
+            have p := Nat.add_le_add t2 t2
+            have m : Odd (Nat.succ (Nat.succ n)) := by 
+              rw [Nat.succ_eq_add_one, add_assoc]
+              rw [Nat.odd_add]
+              tauto
+            conv at p => ring
+            rw [Nat.succ_eq_add_one, Nat.succ_eq_add_one, add_mul, add_mul] at p
+            have ot : 1 * 2 = 1 + 1 := by simp
+            rw [ot] at p
+            rw [← add_assoc, ← add_assoc, Nat.div_two_mul_two_add_one_of_odd] at p
+            simp at p
+            conv at p => ring
+            have x:3+n=Nat.succ (2+n):=by 
+              rw [Nat.succ_eq_add_one]
+              ring
+            rw [x] at p
+            have p2 := Nat.lt_of_succ_le p
+            rw [Nat.succ_eq_add_one, Nat.succ_eq_add_one]
+            ring
+            apply p2
+            assumption
+        . have t: ¬Nat.succ (Nat.succ n) ≥ 2 := by assumption
+          rw [Nat.succ_eq_add_one] at t
+          simp at t
+          conv at t => ring
+          simp at t
     simp at x
     apply x
   . match (Nat.le.dest x) with
