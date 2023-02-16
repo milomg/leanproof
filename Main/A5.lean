@@ -164,7 +164,7 @@ theorem can_split (n:ℕ): (∃ k:ℕ,∃j:ℕ , j<2^k∧ Nat.succ n=2^k+j ):= b
       conv => 
         rhs
         rw [add_comm]
-      have posadd:(n+1)/2-1+1= (n+1)/2 := by
+      have posadd: (n+1)/2-1+1= (n+1)/2 := by
         apply Nat.succ_pred
         simp
         have t: n+1≥ 2:= by assumption
@@ -300,10 +300,6 @@ theorem can_split (n:ℕ): (∃ k:ℕ,∃j:ℕ , j<2^k∧ Nat.succ n=2^k+j ):= b
             rw [pow_succ]
             rw [← o] at t
             have p := Nat.add_le_add t2 t2
-            have m : Odd (Nat.succ (Nat.succ n)) := by 
-              rw [Nat.succ_eq_add_one, add_assoc]
-              rw [Nat.odd_add]
-              tauto
             conv at p => ring
             rw [Nat.succ_eq_add_one, Nat.succ_eq_add_one, add_mul, add_mul] at p
             have ot : 1 * 2 = 1 + 1 := by simp
@@ -354,335 +350,20 @@ theorem pow2_inc (n m : ℕ) (h : 2 ^ n < 2^m) : n < m := by
   have _:= Nat.lt_of_le_of_lt h3 h
   contradiction
 
-theorem q6a : ∀ k:ℕ,∀ j:ℕ,j<2^k→ f (2^k+j) = g (2^k+j) := by
-  intro k
-  apply Nat.strong_rec_on k
-  intro k ih
-  cases k with
-  | zero =>
-    simp
-    rw [f, g]
-    simp
-  | succ k =>
-    intros j ij
-    rw [f]
-    match (Nat.even_or_odd j) with
-    | Or.inl a => 
-      have h : Even (2 ^ Nat.succ k) := by
-        rw [Nat.even_pow]
-        simp
-      have i : Even (2^Nat.succ k + j) := by
-        rw [Nat.even_add]
-        tauto
-      simp
-      split_ifs
-      . rw [Nat.pow_succ]
-        simp
-        have b : ((2 ^ k * 2 + j) / 2) * 2 = (2^k)*2+(j/2)*2 := by
-          rw [Nat.div_two_mul_two_of_even, Nat.div_two_mul_two_of_even]
-          assumption
-          assumption
-        rw [← add_mul] at b
-        simp at b
-        rw [b]
-        have c : (j/2)*2<2^k*2 := by 
-          rw [Nat.div_two_mul_two_of_even]
-          apply ij
-          apply a
-        simp at c
-        rw [ih k (Nat.lt_succ_self k) (j/2) c]
-        rw [g]
-        split_ifs
-        . have d : 2^k+j/2>0:= by simp
-          have _ := Nat.ne_of_gt d
-          contradiction
-        have e:2^k+j/2>0:= by simp
-        simp
-        have f2 := Nat.ne_of_lt e
-        rw [log2_of_2kj k (j/2) c]
-        simp
-        apply Eq.symm
-        rw [g]
-        split_ifs
-        . have f2:2 ^ k * 2 + j > 0:= by simp
-          have _ := Nat.ne_of_gt f2
-          contradiction
-        rw [← Nat.pow_succ]
-        rw [log2_of_2kj (Nat.succ k) (j) ij]
-        simp
-        cases j with
-        | zero =>
-          simp
-        | succ j =>
-          have h2 := can_split j
-          match h2 with
-          | Exists.intro k1 asdf2 =>
-            simp at asdf2
-            match asdf2 with
-            | Exists.intro j1 asdf4 =>
-              simp at asdf4
-              match asdf4 with
-              | And.intro lh rh =>
-                rw [rh]
-                have x: k1<Nat.succ k := by 
-                  have t := Nat.le.intro (Eq.symm rh)
-                  have bla:= Nat.lt_of_le_of_lt t ij
-                  apply pow2_inc k1 (Nat.succ k) bla
-                rw [← ih k1 x j1 lh]
-                rw [f]
-                split_ifs
-                have _ : 2^k1+j1≠ 0 := by
-                  have _ : 2^k1>0 := Nat.pos_pow_of_pos k1 (Nat.zero_lt_succ 1)
-                  apply Nat.ne_of_gt
-                  simp
-                contradiction
-                have x1 :Odd (2 ^ k1 + j1):= by assumption
-                rw [← rh] at x1
-                rw [Nat.even_iff_not_odd] at a
-                contradiction
-                rw [← rh]
-                revert c
-                cases (Nat.succ j / 2) with
-                | zero =>
-                  simp
-                | succ j2 =>
-                  intro c
-                  have h3 := can_split (j2)
-                  match h3 with
-                  | Exists.intro k2 asdf =>
-                    match asdf with
-                    | Exists.intro j2 asdf =>
-                      simp at asdf
-                      match asdf with
-                      | And.intro lh1 rh1 =>
-                        rw [rh1]
-                        apply ih
-                        have t := Nat.le.intro (Eq.symm rh1)
-                        have bla:= Nat.lt_of_le_of_lt t c
-                        have bla1:= pow2_inc k2 (k) bla
-                        have bla2:=Nat.le_succ k
-                        apply Nat.le_trans bla1 bla2
-                        assumption
-      . contradiction
-    | Or.inr a =>
-      have h : Even (2 ^ Nat.succ k) := by
-        rw [Nat.even_pow]
-        simp
-      have i : Odd (2^Nat.succ k + j) := by
-        rw [add_comm, Nat.odd_add]
-        tauto
-      simp
-      split_ifs
-      . rw [Nat.odd_iff_not_even] at i
-        contradiction
-      . rw [Nat.pow_succ]
-        rw [f]
-        split_ifs
-        . have p : 2^k*2≥ 2 := by
-            simp
-            apply Nat.pos_pow_of_pos k
-            simp
-          have p2 : 2^k*2+j-1>0 := by
-            simp
-            apply Nat.le_trans p (Nat.le_add_right (2^k*2) j)
-          have _ := Nat.ne_of_gt p2
-          contradiction
-        . have z : 2 ^ k * 2 + j - 1 + 1 = 2 ^ k * 2 + j := by
-            apply Nat.succ_pred
-            rw [Nat.sub]
-            apply Nat.ne_of_gt
+theorem pow2_nz (n : ℕ) : 2^n ≠ 0 := by
+  apply Nat.ne_of_gt
+  apply Nat.pos_pow_of_pos n
+  simp
 
-            have x : 2^k*2≥ 2:= by
-              simp
-              apply Nat.pos_pow_of_pos k
-              simp
-            have x2 := Nat.le_add_right (2^k*2) j
-            have x3 := Nat.le_trans x x2
-            have x4 : 0<2 := by simp
-            apply Nat.lt_of_lt_of_le x4 x3
-          have h : Odd (2 ^ k * 2 + j - 1) := by assumption
-          rw [Nat.odd_iff_not_even, ← Nat.even_add_one] at h
-          rw [z] at h
-          contradiction
-        . have jm1e : Even (j-1) := by
-            have b : Odd 1 := by simp
-            apply Nat.Odd.sub_odd a b
-
-          have h : (2 ^ k * 2 + j - 1) / 2 * 2 = (2 ^ k + (j - 1) / 2)*2 := by
-            rw [Nat.div_two_mul_two_of_even]
-            rw [add_mul]
-            rw [Nat.div_two_mul_two_of_even]
-
-            have h2 : j>0:= by
-              apply by_contradiction
-              simp
-              intro jz
-              have ej : Even j := by
-                rw [jz]
-                simp
-              rw [Nat.even_iff_not_odd] at ej
-              contradiction
-            
-            cases j with
-            | zero =>
-              contradiction
-            | succ j =>
-              simp
-            
-            apply jm1e
-            have h2: ¬Odd (2 ^ k * 2 + j - 1) := by assumption
-            rw [Nat.odd_iff_not_even] at h2
-            simp at h2
-            apply h2
-          simp at h
-          rw [h]
-          rw [ih]
-          apply Eq.symm
-          rw [g]
-          split_ifs
-          . have t : 2^k*2+j>0 := by 
-              have x : 2^k*2≥ 2 := by
-                simp
-                apply Nat.pos_pow_of_pos k
-                simp
-              have x1 := Nat.le_add_right (2^k*2) j
-              have x2 : 0<2 := by simp
-              apply Nat.lt_of_lt_of_le x2 (Nat.le_trans x x1)
-            have _ := Nat.ne_of_gt t
-            contradiction
-            
-          . rw [← Nat.pow_succ]
-            rw [log2_of_2kj (Nat.succ k) (j) ij]
-            simp
-            apply Eq.symm
-            rw [g]
-            split_ifs
-            have _ : 2^k+(j-1)/2≠ 0 := by
-              have _ : 2^k≥1 := by
-                simp
-                apply Nat.pos_pow_of_pos k
-                simp
-              apply Nat.ne_of_gt
-              simp
-            contradiction
-            have ij2 : (j-1)/2*2 < 2^k*2 := by
-              rw [← Nat.pow_succ]
-              rw [Nat.div_two_mul_two_of_even]
-              have x : j-1≤j := by simp
-              apply Nat.lt_of_le_of_lt x ij
-              have oneOdd : Odd 1 := by simp
-              apply Nat.Odd.sub_odd a oneOdd
-            simp at ij2
-            rw [log2_of_2kj (k) ((j-1)/2) ij2]
-            simp
-            apply Eq.symm
-            cases j with
-            | zero =>
-              contradiction
-            | succ j1 =>
-              have h2 := can_split (j1)
-              apply Exists.elim h2
-              intros k1 h2
-              apply Exists.elim h2
-              intros j2 h2
-              match h2 with
-              | And.intro lhs rhs =>
-                rw [rhs]
-                let bla : k1<Nat.succ k:=by
-                  have t := Nat.le.intro (Eq.symm rhs)
-                  have bla:= Nat.lt_of_le_of_lt t ij
-                  apply pow2_inc k1 (Nat.succ k) bla
-                rw [← ih k1 bla j2 lhs]
-                unfold f
-                split_ifs
-                have _ : 2^k1+j2≠ 0 := by
-                  have _ : 2^k1≥1 := by
-                    simp
-                    apply Nat.pos_pow_of_pos k1
-                    simp
-                  apply Nat.ne_of_gt
-                  simp
-                contradiction
-                simp at jm1e
-                
-                unfold f
-                split_ifs
-                . simp
-                  have x:2 ^ k1 + j2 - 1 = 0:= by assumption
-                  rw [x]
-                  simp
-                . have x : Odd (2 ^ k1 + j2 - 1) := by assumption
-                  rw [Nat.odd_iff_not_even, ← Nat.even_add_one] at x
-                  rw [← rhs] at x
-                  simp at x
-                  rw [Nat.even_iff_not_odd] at x
-                  contradiction
-                . rw [← rhs]
-                  simp
-                  have ej3 : ∃ j3 : ℕ, j3 = (j1)/2 := by simp
-                  apply Exists.elim ej3
-                  intros j3 h3t
-                  rw [←h3t ]
-                  cases (j3) with
-                  | zero =>
-                    simp
-                  | succ j3 =>
-                    have h3 := can_split j3
-                    apply Exists.elim h3
-                    intros k2 h3
-                    apply Exists.elim h3
-                    intros j4 h3
-                    match h3 with
-                    | And.intro lhs2 rhs2 =>
-                      rw [rhs2]
-                      have thingy:(j1/2)<2^Nat.succ k := by
-                        simp
-                        have tmp: j1/2*2<Nat.succ j1*2 := by 
-                          cases j1 with
-                          | zero => simp
-                          | succ j1 =>
-                            rw [Nat.div_two_mul_two_of_even]
-                            rw [Nat.succ_eq_add_one, Nat.succ_eq_add_one]
-                            have two_eq_succ_one : Nat.succ 1=2 := by simp
-                            rw [← two_eq_succ_one]
-                            rw [add_assoc]
-                            rw [add_mul]
-                            conv =>
-                              rhs
-                              congr
-                              rw [Nat.mul_succ]
-                            simp
-                            rw [Nat.add_comm]
-                            conv =>
-                              rhs
-                              rw [Nat.add_comm, ← Nat.add_assoc]
-                            simp
-                            rw [two_eq_succ_one]
-                            have asdf : 1<(1+1)*2 := by simp
-                            apply Nat.lt_of_lt_of_le asdf (Nat.le_add_right ((1+1)*2) j1)
-                            assumption
-                        simp at tmp
-                        apply Nat.lt_trans tmp ij
-                      rw [← h3t] at thingy
-                      have bla2 : k2<Nat.succ k:= by
-                        have t := Nat.le.intro (Eq.symm rhs2)
-                        have bla := Nat.lt_of_le_of_lt t thingy
-                        apply pow2_inc k2 (Nat.succ k) bla
-                      rw [ih k2 bla2 j4 lhs2]
-                      
-                rw [rhs] at a
-                contradiction
-          simp
-          rw [Nat.pow_succ] at ij
-          have x:(j-1)/2*2<2^k*2 := by
-            rw [Nat.div_two_mul_two_of_even]
-            have y:(j-1)≤ j := by simp
-            apply Nat.lt_of_le_of_lt y ij
-            apply jm1e
-          simp at x
-          apply x
+theorem pow2p_nz (n j : ℕ) : 2^n+j ≠ 0 := by
+  apply Nat.ne_of_gt
+  apply Nat.lt_of_lt_of_le _ (Nat.le_add_right (2^n) j)
+  apply Nat.pos_pow_of_pos n
+  simp
 
 theorem q6 (n : ℕ) : f n = g n := by
+  apply Nat.strong_rec_on n
+  intro n ih
   cases n with
   | zero => simp
   | succ n =>
@@ -694,4 +375,196 @@ theorem q6 (n : ℕ) : f n = g n := by
     match x with
     | And.intro lhs rhs =>
       rw [rhs]
-      apply q6a k j lhs
+      match k with
+      | Nat.zero =>
+        simp at lhs
+        rw [lhs]
+        rw [f,g]
+        simp
+      | Nat.succ k => 
+        match (Nat.even_or_odd j) with
+        | Or.inl je =>
+          have x : Even (2^Nat.succ k) := by
+              simp [Nat.even_pow]
+          have ne : Even (2^Nat.succ k+j) := by 
+            rw [Nat.even_add]
+            tauto
+          rw [f]
+          simp
+          split_ifs
+          . rw [ih ((2 ^ Nat.succ k + j) / 2)]
+            have div: (2 ^ Nat.succ k + j) / 2 *2 = (2 ^ Nat.succ k/2 + j/2)*2 := by
+              rw [Nat.div_two_mul_two_of_even, add_mul, Nat.div_two_mul_two_of_even, Nat.div_two_mul_two_of_even]
+              assumption
+              assumption
+              assumption
+            conv at div =>
+              rhs
+              rw [Nat.pow_succ]
+            simp at div
+            rw [div]
+            rw [g]
+            have _ := pow2_nz (k)
+            simp
+            split_ifs
+            tauto
+            have lt: j/2*2<2^k*2:= by
+              rw [Nat.div_two_mul_two_of_even]
+              rw [← Nat.pow_succ]
+              assumption
+              assumption
+            simp at lt
+            have reduce := log2_of_2kj k (j / 2) lt
+            rw [reduce]
+            simp
+            apply Eq.symm
+            rw [g]
+            simp
+            have reduce := log2_of_2kj (Nat.succ k) (j) lhs
+            rw [reduce]
+            simp
+            rw [← ih j]
+            rw [f]
+            split_ifs
+            have j0 :j=0:= by assumption
+            rw [j0]
+            simp
+            have jo :Odd j:= by assumption
+            rw [Nat.even_iff_not_odd] at je
+            contradiction
+            have lt1:2^k<2^Nat.succ k + j:= by
+              rw [Nat.pow_succ]
+              have x:2 ^ k < 2 ^ k * 2:= by
+                simp
+              apply Nat.lt_of_lt_of_le x (Nat.le_add_right (2^k*2) j)
+            rw [← rhs] at lt1
+            rw [ih (j/2) (Nat.lt_trans lt lt1)]
+            rw [rhs]
+            simp
+            rw [← rhs]
+            apply Nat.div_lt_self
+            simp
+            simp
+          . contradiction
+        | Or.inr jo =>
+          rw [f]
+          simp
+          have k2 :(2^Nat.succ k)>1:= by simp
+          have ke: Even (2^Nat.succ k) := by
+            simp [Nat.even_pow]
+          have kjo : Odd (2^Nat.succ k+j):= by 
+            rw [add_comm]
+            rw [Nat.odd_add]
+            tauto
+          split_ifs
+          rw [Nat.odd_iff_not_even] at kjo
+          contradiction
+          rw [f]
+          have jg0:j>0:= by
+            apply by_contradiction
+            simp
+            intro jz
+            rw [jz] at jo
+            contradiction
+          have oo : Odd 1:= by simp
+          have jm1e : Even (j-1) := by
+            rw [Nat.even_sub']
+            tauto
+            have x := Nat.succ_lt_succ jg0
+            rw [Nat.succ_eq_add_one] at x
+            simp at x
+            apply Nat.le_of_lt_succ x
+          split_ifs
+          have wrong:2 ^ Nat.succ k + j - 1 = 0:=by assumption
+          simp at wrong
+          have right:=Nat.lt_of_lt_of_le k2 (Nat.le_add_right (2^Nat.succ k) j)
+          have _ := Nat.not_le_of_gt right
+          contradiction
+          have kj1e : Even (2^Nat.succ k+j-1):= by
+            rw [Nat.even_sub']
+            tauto
+            apply Nat.le_trans (Nat.le_of_lt k2) (Nat.le_add_right (2^Nat.succ k) j)
+          rw [Nat.even_iff_not_odd] at kj1e
+          contradiction
+          have reduce : (2 ^ Nat.succ k + j - 1) / 2*2 = (2 ^ Nat.succ k / 2 + (j-1)/2)*2:=by
+            rw [Nat.div_two_mul_two_of_even, add_mul, Nat.div_two_mul_two_of_even, Nat.div_two_mul_two_of_even]
+            have jsp:j-1+1=j:= by 
+              apply Nat.succ_pred
+              simp
+              apply Nat.ne_of_gt
+              apply jg0
+            have t : 2 ^ Nat.succ k + j - 1+1 = 2 ^ Nat.succ k + (j - 1)+1:= by
+              rw [add_assoc]
+              rw [jsp]
+              apply Nat.succ_pred
+              simp
+            simp at t
+            apply t
+            rw [Nat.even_sub']
+            tauto
+            apply (Nat.succ_le_of_lt jg0)
+            assumption
+            have x : ¬Odd (2 ^ Nat.succ k + j - 1):= by assumption
+            rw [← Nat.even_iff_not_odd] at x
+            apply x
+          simp at reduce
+          conv at reduce =>
+            rhs
+            rw [Nat.pow_succ]
+            simp
+          rw [reduce]
+          rw [ih (2^k+(j-1)/2)]
+          rw [g]
+          split_ifs
+          have _:= pow2p_nz k ((j-1)/2)
+          contradiction
+          have j1lt2k : (j-1)/2*2<2^k*2:= by 
+            rw [Nat.div_two_mul_two_of_even]
+            rw [← Nat.pow_succ]
+            have x:j-1≤ j:= by simp
+            apply Nat.lt_of_le_of_lt x lhs
+            assumption
+          simp at j1lt2k
+          have l2 := log2_of_2kj k ((j-1)/2) j1lt2k
+          rw [l2]
+          simp
+          apply Eq.symm
+          rw [g]
+          simp
+          have l2 := log2_of_2kj (Nat.succ k) (j) lhs
+          rw [l2]
+          simp
+          rw [← ih j]
+          rw [f]
+          split_ifs
+          have jn0 :¬ j=0:= Nat.ne_of_gt jg0
+          contradiction
+          rw [f]
+          split_ifs
+          have j1e0: j-1=0:= by assumption
+          rw [j1e0]
+          simp
+          rw [Nat.even_iff_not_odd] at jm1e
+          contradiction
+          rw [ih ((j-1)/2)]
+          have x:2^k<Nat.succ n:= by
+            have x:2^k<2^Nat.succ k:= by
+              rw [Nat.pow_succ]
+              simp
+            apply Nat.lt_of_lt_of_le x (Nat.le.intro (Eq.symm rhs))
+          apply Nat.lt_trans j1lt2k x
+          apply Nat.lt_of_lt_of_le lhs (Nat.le.intro (Eq.symm rhs))
+          have p1: 2 ^ k + (j - 1) / 2< 2 ^ Nat.succ k + j:= by
+            rw [Nat.pow_succ]
+            simp
+            have x:2 ^ k < 2 ^ k * 2:= by simp
+            have y:(j-1)/2*2 < j*2 := by 
+              rw [Nat.div_two_mul_two_of_even]
+              have tg0: 2>1:= by simp
+              have jj2:= lt_mul_right jg0 tg0
+              apply Nat.lt_of_le_of_lt (Nat.pred_le j) jj2
+              assumption
+            simp at y
+            apply Nat.add_lt_add x y
+          rw [← rhs] at p1
+          apply p1
