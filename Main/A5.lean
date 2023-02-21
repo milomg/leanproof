@@ -3,6 +3,7 @@ import Mathlib.Algebra.Ring.Basic
 import Mathlib.Data.Nat.Parity
 import Mathlib.Data.Nat.Pow
 import Mathlib.Tactic.Ring
+import Mathlib.Init.Algebra.Order
 
 def f (n : Nat) : Nat :=
   if n = 0 then 0
@@ -104,235 +105,55 @@ theorem log2_of_2kj (k : ℕ) (j : ℕ) (h : j<2^k): Nat.log2 (2 ^ k+j) = k := b
   
 
 theorem can_split (n:ℕ): (∃ k:ℕ,∃j:ℕ , j<2^k∧ Nat.succ n=2^k+j ):= by
-  apply Exists.intro (Nat.log2 (Nat.succ  n))
-  apply Exists.intro (Nat.succ n-2^Nat.log2 (Nat.succ n))
-  have two_eq_succ_one : Nat.succ 1=2 := by simp
-  have x:Nat.succ n≥ 2^Nat.log2 (Nat.succ n) := by
-    apply Nat.strong_rec_on n
+  induction n with
+  | zero => 
+    apply Exists.intro 0
+    apply Exists.intro 0
     simp
-    intros n ih
-    simp [Nat.succ_eq_add_one]
-    unfold Nat.log2
-    split_ifs
-    . have h1 : (n+1)/2-1<n:= by 
-        have ngz : n>0:= by 
-          apply by_contradiction
-          have t:n+1≥2:= by assumption
-          simp
-          intro nz
-          rw [nz] at t
-          contradiction 
-        match (Nat.even_or_odd n) with
-        | Or.inl a => 
-          have _ : Odd (n+1) := by
-            apply by_contradiction
+  | succ n ih =>
+    match ih with 
+    | Exists.intro k tmp =>
+      match tmp with
+      | Exists.intro j tmp =>
+        match tmp with
+        | And.intro lhs rhs =>
+          have j1leq2k : j+1≤2^k := by
+            apply Nat.le_of_lt_succ
+            rw [Nat.succ_eq_add_one]
             simp
-            rw [Nat.even_add_one]
-            tauto
-          have thing : ((n+1) / 2 )*2+1 < n*2+1:=by
-            rw [Nat.div_two_mul_two_add_one_of_odd]
+            apply lhs
+          have mycases : j+1<2^k ∨ j+1=2^k := by
+            rw [← le_iff_lt_or_eq]
+            apply j1leq2k
+          match mycases with
+          | Or.inl lt =>
+            apply Exists.intro k
+            apply Exists.intro (j+1)
+            apply And.intro lt
+            rw [rhs]
+            rw [Nat.succ_eq_add_one]
+            rw [add_assoc]
+          | Or.inr eq =>
+            apply Exists.intro (Nat.succ k)
+            apply Exists.intro 0
+            apply And.intro
             simp
-            apply lt_mul_right
-            assumption
-            simp
-            assumption
-          simp at thing
-          have t:= Nat.sub_le ((n+1)/2) 1
-          apply Nat.lt_of_le_of_lt t thing
-        | Or.inr a =>
-          have _ : Even (n+1) := by
-            rw [Nat.even_add_one]
-            rw [← Nat.odd_iff_not_even]
-            assumption
-          have thing : ((n+1) / 2  - 1)*2 < n*2:=by
-            rw [Nat.mul_sub_right_distrib]
-            rw [Nat.div_two_mul_two_of_even]
-            simp
-            have z1 : 0<1:= by simp
-            have t := Nat.sub_lt (ngz) z1
-            have t2:n≤n*2 := by 
-              simp
-              rw [← two_eq_succ_one, Nat.mul_succ]
-              apply Nat.le_add_left (n)
-            apply Nat.lt_of_lt_of_le t t2 
-            assumption
-          simp at thing
-          apply thing
-      have h2 := ih ((n+1)/2 - 1) h1
-      simp at h2
-      rw [Nat.succ_eq_add_one] at h2
-      conv => 
-        rhs
-        rw [add_comm]
-      have posadd: (n+1)/2-1+1= (n+1)/2 := by
-        apply Nat.succ_pred
-        simp
-        have t: n+1≥ 2:= by assumption
-        have t2:2>0:= by simp
-        have t3:(n+1)/2>0:= Nat.div_pos t t2
-        apply Nat.ne_of_gt t3
-      rw [posadd] at h2
-      have h3 : 2^Nat.log2 ((n+1)/2) *2 ≤(n+1)/2 *2:= by
-        simp
-        apply h2
-      match (Nat.even_or_odd (n+1)) with
-      | Or.inl a =>
-        rw [Nat.div_two_mul_two_of_even,mul_comm,← pow_succ] at h3
-        conv => 
-          rhs
-          rw [add_comm]
-        apply h3
-        assumption
-      | Or.inr a =>
-        have h3 : 2^Nat.log2 ((n+1)/2) *2+1 ≤(n+1)/2 *2+1:= by
-          simp
-          apply h2
-        rw [Nat.div_two_mul_two_add_one_of_odd,mul_comm,← pow_succ] at h3
-        conv => 
-          rhs
-          rw [add_comm]
-        have lts := Nat.lt_succ_self (2 ^ (Nat.log2 ((n + 1) / 2) + 1))
-        rw [Nat.succ_eq_add_one] at lts
-        apply Nat.le_trans (Nat.le_of_lt lts) h3
-        assumption
-    . simp
-  apply And.intro
-  . have x: Nat.succ n - 2 ^ Nat.log2 (Nat.succ n) + 2 ^ Nat.log2 (Nat.succ n) < 2 ^ Nat.log2 (Nat.succ n) + 2 ^ Nat.log2 (Nat.succ n) := by
-      have y:Nat.succ n - 2 ^ Nat.log2 (Nat.succ n) + 2 ^ Nat.log2 (Nat.succ n)=Nat.succ n := by
-        rw [Nat.sub_add_cancel x]
-      rw [y]
-      ring
-      apply Nat.strong_rec_on n
-      intros n ih
-      cases n with
-      | zero => simp
-      | succ n =>
-        unfold Nat.log2
-        have ooe: Even (1+1) := by simp
-        split_ifs
-        . match (Nat.even_or_odd n) with
-          | Or.inl a =>
-            have n2n : n/2<Nat.succ n := by 
-              have t: n<Nat.succ n := by simp
-              have t2: n/2*2≤  n*2 := by
-                rw [Nat.div_two_mul_two_of_even]
-                cases n with
-                | zero => simp
-                | succ n => 
-                  apply Nat.le_of_lt
-                  apply lt_mul_right
-                  simp
-                  simp
-                apply a              
-              simp at t2
-              apply Nat.lt_of_le_of_lt t2 t
-            
-            have t := ih (n/2) n2n
-            
-            have o: Nat.succ (Nat.succ n) / 2*2 = Nat.succ (n/2)*2 := by
-              rw [Nat.succ_eq_add_one, Nat.succ_eq_add_one]
-              rw [add_assoc]
-              have n2 : Even (n+(1+1)):= by
-                rw [Nat.even_add]
-                tauto
-              
-              rw [Nat.div_two_mul_two_of_even]
-              simp
-              rw [add_mul]
-              rw [Nat.div_two_mul_two_of_even]
-              assumption
-              assumption
-            simp at o
-            rw [pow_succ]
-            rw [← o] at t
-            have p := Nat.add_lt_add t t
-            have m : Even (Nat.succ (Nat.succ n)) := by 
-              rw [Nat.succ_eq_add_one, add_assoc]
-              rw [Nat.even_add]
-              tauto
-            conv at p => 
-              ring
-              rw [Nat.div_two_mul_two_of_even]
+            rw [Nat.pow_succ, Nat.add_zero]
+            have two_eq_succ_one : 2=1+1 := by simp
+            conv =>
+              rhs
+              congr
               rfl
-              apply m
-            ring
-            apply p
-          | Or.inr a =>
-            have o: Nat.succ (Nat.succ n) / 2*2+1 = Nat.succ (n/2)*2+1 := by
-              rw [Nat.succ_eq_add_one, Nat.succ_eq_add_one]
-              rw [Nat.div_two_mul_two_add_one_of_odd]
-              rw [add_mul]
-              conv =>
-                rhs
-                rw [add_assoc]
-                congr
-                rfl
-                rw [add_comm]
-              rw [← add_assoc]
-              rw [Nat.div_two_mul_two_add_one_of_odd]
-              apply a
-              have n2 : Odd (n+(1+1)):= by
-                rw [Nat.odd_add]
-                tauto
-              rw [add_assoc]
-              apply n2
-            simp at o
-            rw [o]
-
-            have n2n : n/2<Nat.succ n := by 
-              have t: n<Nat.succ n := by simp
-              have t2: n/2*2+1≤  n*2 := by
-                rw [Nat.div_two_mul_two_add_one_of_odd]
-                cases n with
-                | zero => simp
-                | succ n => 
-                  apply Nat.le_of_lt
-                  apply lt_mul_right
-                  simp
-                  simp
-                apply a
-              have t3 := Nat.le_trans t2 (Nat.le_add_right (n*2) 1)
-              simp at t3
-              apply Nat.lt_of_le_of_lt t3 t
-            
-            have t := ih (n/2) n2n
-            have t2:= Nat.succ_le_of_lt t
-            rw [pow_succ]
-            rw [← o] at t
-            have p := Nat.add_le_add t2 t2
-            conv at p => ring
-            rw [Nat.succ_eq_add_one, Nat.succ_eq_add_one, add_mul, add_mul] at p
-            have ot : 1 * 2 = 1 + 1 := by simp
-            rw [ot] at p
-            rw [← add_assoc, ← add_assoc, Nat.div_two_mul_two_add_one_of_odd] at p
-            simp at p
-            conv at p => ring
-            have x:3+n=Nat.succ (2+n):=by 
-              rw [Nat.succ_eq_add_one]
-              ring
-            rw [x] at p
-            have p2 := Nat.lt_of_succ_le p
-            rw [Nat.succ_eq_add_one, Nat.succ_eq_add_one]
-            ring
-            apply p2
-            assumption
-        . have t: ¬Nat.succ (Nat.succ n) ≥ 2 := by assumption
-          rw [Nat.succ_eq_add_one] at t
-          simp at t
-          conv at t => ring
-          simp at t
-    simp at x
-    apply x
-  . match (Nat.le.dest x) with
-    | Exists.intro k hk =>
-      conv => 
-        rhs
-        congr
-        rfl
-        congr
-        rw [← hk]
-      simp
-      rw [hk]
+              rw [two_eq_succ_one]
+            rw [Nat.mul_add, Nat.mul_one]
+            conv =>
+              rhs
+              congr
+              rfl
+              rw [← eq]
+            rw [rhs]
+            rw [Nat.succ_eq_add_one]
+            rw [add_assoc]
 
 theorem pow2_inc (n m : ℕ) (h : 2 ^ n < 2^m) : n < m := by
   apply by_contradiction
