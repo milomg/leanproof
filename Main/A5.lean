@@ -3,7 +3,6 @@ import Mathlib.Algebra.Ring.Basic
 import Mathlib.Data.Nat.Parity
 import Mathlib.Data.Nat.Pow
 import Mathlib.Tactic.Ring
-import Mathlib.Init.Algebra.Order
 
 def f (n : Nat) : Nat :=
   if n = 0 then 0
@@ -94,7 +93,6 @@ theorem log2_of_2kj (k : ℕ) (j : ℕ) (h : j<2^k): Nat.log2 (2 ^ k+j) = k := b
     have _ := Nat.lt_of_le_of_lt (Nat.le_trans h4 h5) h
     have _ := Nat.lt_irrefl (2^k*2)
     contradiction
-    
     have h2: 2≤2^Nat.succ k := by 
       rw [Nat.pow_succ]
       simp
@@ -102,7 +100,6 @@ theorem log2_of_2kj (k : ℕ) (j : ℕ) (h : j<2^k): Nat.log2 (2 ^ k+j) = k := b
       simp
     have h3 := Nat.le_trans h2 (Nat.le_add_right (2^Nat.succ k) j)
     contradiction
-  
 
 theorem can_split (n:ℕ): (∃ k:ℕ,∃j:ℕ , j<2^k∧ Nat.succ n=2^k+j ):= by
   induction n with
@@ -139,12 +136,12 @@ theorem can_split (n:ℕ): (∃ k:ℕ,∃j:ℕ , j<2^k∧ Nat.succ n=2^k+j ):= b
             apply And.intro
             simp
             rw [Nat.pow_succ, Nat.add_zero]
-            have two_eq_succ_one : 2=1+1 := by simp
+            have two_eq_one_plus_one : 2=1+1 := by simp
             conv =>
               rhs
               congr
               rfl
-              rw [two_eq_succ_one]
+              rw [two_eq_one_plus_one]
             rw [Nat.mul_add, Nat.mul_one]
             conv =>
               rhs
@@ -200,7 +197,7 @@ theorem q6 (n : ℕ) : f n = g n := by
       | Nat.zero =>
         simp at lhs
         rw [lhs]
-        rw [f,g]
+        rw [f, g]
         simp
       | Nat.succ k => 
         match (Nat.even_or_odd j) with
