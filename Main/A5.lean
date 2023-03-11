@@ -13,13 +13,13 @@ def f (n : Nat) : Nat :=
       simp_wf
       have h : n ≠ 0 := by assumption
       first | apply Nat.pred_lt h
-            | have k : 2 > 1 := by simp
-              apply Nat.div_lt_self (Nat.zero_lt_of_ne_zero h) k
+          | apply Nat.div_lt_self (Nat.zero_lt_of_ne_zero h)
+            simp
 
 def g (n : Nat) : Nat :=
   if n = 0 then 0
   else g (n - 2 ^ (Nat.log2 n)) + 1
-  termination_by _ n => n
+  termination_by g n => n
   decreasing_by
       simp_wf
       have h : n ≠ 0 := by assumption
@@ -49,22 +49,16 @@ lemma log2_of_2kj (k : ℕ) (j : ℕ) (h : j<2^k): Nat.log2 (2 ^ k+j) = k := by
         have _ : Even (2^k*2+j) := by
           rw [Nat.even_add]
           tauto
-        have h4:(2^k*2+j)/2=(2^k+(j/2)) := by
           rw [← mul_right_cancel_iff_of_pos twopos,Nat.div_two_mul_two_of_even, add_mul, Nat.div_two_mul_two_of_even]
           assumption
           assumption
-        apply h4
       | Or.inr a => 
         have _ : Odd (2^k*2+j) := by
           rw [add_comm, Nat.odd_add]
           tauto
-        have h4:(2^k*2+j)/2=(2^k+(j/2)) := by
-          rw [← mul_right_cancel_iff_of_pos twopos,← add_left_inj 1,
-          Nat.div_two_mul_two_add_one_of_odd, add_mul,
-          add_assoc, Nat.div_two_mul_two_add_one_of_odd]
+        rw [← mul_right_cancel_iff_of_pos twopos, ← add_left_inj 1, Nat.div_two_mul_two_add_one_of_odd, add_mul, add_assoc, Nat.div_two_mul_two_add_one_of_odd]
           assumption
           assumption
-        apply h4
     rw [h2]
     apply ih
     rw [Nat.pow_succ] at h
