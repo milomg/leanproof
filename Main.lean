@@ -7,16 +7,8 @@ import Mathlib.Algebra.Free
 lemma l1 (x : Nat) : Xor' (Even x) (Odd x) := by simp
 
 lemma l5 (q : Nat) : (Odd (q * q)) -> (Odd q) := by
-  rw [← not_imp_not]
-  simp
-  intro hnp
-  match (l1 (q * q)) with
-  | Or.inl xi =>
-    rw [Nat.even_iff_not_odd]
-    apply And.right xi
-  | Or.inr h1 =>
-    rw [Nat.even_mul]
-    tauto
+  intro h
+  exact Nat.Odd.of_mul_left h
 
 theorem q3 (n : Nat) : (∃ q: Nat, q * q = 2 * n + 1) -> (∃ y: Nat, n + 1 = y * y + (y + 1) * (y + 1)) := by
   intro hq
@@ -24,12 +16,12 @@ theorem q3 (n : Nat) : (∃ q: Nat, q * q = 2 * n + 1) -> (∃ y: Nat, n + 1 = y
   | ⟨q, y⟩ =>
     match (l5 q (Exists.intro n y)) with
     | ⟨r, hr⟩ =>
+      apply Exists.intro r
       conv at y =>
         simp
         rw [hr, right_distrib, one_mul, ← add_assoc,
             add_right_cancel_iff, mul_assoc, ← left_distrib]
         simp
-      apply Exists.intro r
       rw [← y]
       ring
 
@@ -55,17 +47,14 @@ theorem q5 (m n: ℕ) : (F m n > n) := by
   | zero =>
     intro n
     rw [F]
-    simp
+    exact Nat.lt.base n
   | succ m ha =>
     intro n
     induction n with
     | zero =>
-      have hb := ha 1
-      apply Nat.lt_trans Nat.zero_lt_one hb
+      apply Nat.lt_trans Nat.zero_lt_one (ha 1)
     | succ n hb =>
-      have hc := ha (F (m + 1) n)
-      have hd := Nat.succ_le_of_lt hb
-      apply Nat.lt_of_le_of_lt hd hc
+      exact Nat.lt_of_le_of_lt hb (ha (F (m + 1) n))
 
 def main : IO Unit :=
   IO.println s!"Hello, world!"
