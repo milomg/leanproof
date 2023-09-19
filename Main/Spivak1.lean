@@ -74,3 +74,9 @@ theorem onetwofive [InnerProductSpace ℝ E] (x y: E) :⟪x, y⟫_ℝ = (‖x+y�
 theorem onethree (a b : ℝ) : IsCompact (Set.Icc a b) := by
   have : CompactIccSpace ℝ:= by exact ConditionallyCompleteLinearOrder.toCompactIccSpace ℝ
   exact isCompact_Icc
+
+variable {F: Type _} [NormedAddCommGroup F]
+
+theorem oneeight (f : E → F) : Continuous f ↔ ∀ u : Set F, (IsOpen u → (∃ v : Set E, ((IsOpen v) ∧ (f ⁻¹' u = v)))) := by
+  rw?
+  sorry
