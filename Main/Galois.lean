@@ -2,6 +2,7 @@ import Mathlib.RingTheory.QuotientNoetherian
 import Mathlib.RingTheory.Polynomial.GaussLemma
 import Mathlib.Tactic
 import Mathlib.Data.ZMod.Basic
+import Mathlib.Init.Data.Nat.Lemmas
 import Mathlib
 
 theorem PigeonholeNatOrds (n : Nat) : ∀ f: ({m : ℕ // m ≤ Nat.succ n} -> {m : ℕ // m < Nat.succ n}), ¬ Function.Injective f := by
@@ -22,11 +23,6 @@ theorem PigeonholeNatOrds (n : Nat) : ∀ f: ({m : ℕ // m ≤ Nat.succ n} -> {
       simp
       have j := Subtype.property (f { val := 0, property := olteq1})
       simp at j
-      conv at j => 
-        rhs 
-        rw [← Nat.one_eq_succ_zero]
-    
-      rw [Nat.lt_one_iff] at j
       apply Subtype.eq
       apply j
     
@@ -34,10 +30,6 @@ theorem PigeonholeNatOrds (n : Nat) : ∀ f: ({m : ℕ // m ≤ Nat.succ n} -> {
       simp
       have j := Subtype.property (f { val := 1, property := Nat.succ_pos Nat.zero})
       simp at j
-      conv at j => 
-        rhs 
-        rw [← Nat.one_eq_succ_zero]
-      rw [Nat.lt_one_iff] at j
       apply Subtype.eq
       apply j
     rw [lhs, rhs]
@@ -114,7 +106,7 @@ theorem thisPolyNoRatRoots [CommSemiring ℤ]: ¬ ∃ (x : ℚ),  (f.map (Int.ca
       rw [natDegree_le_iff_coeff_eq_zero]
       simp
       intros N h
-      rw [coeff_X, coeff_X_pow, ← monomial_zero_one, coeff_monomial]
+      rw [coeff_X, ← monomial_zero_one, coeff_monomial]
       have nneq3 : ¬(N = 3) := Nat.ne_of_gt h
       have nneq1 : ¬(1 = N) := by 
         apply Nat.ne_of_lt
@@ -159,7 +151,7 @@ theorem thisPolyNoRatRoots [CommSemiring ℤ]: ¬ ∃ (x : ℚ),  (f.map (Int.ca
         rw [natDegree_le_iff_coeff_eq_zero]
         simp
         intros N h
-        rw [coeff_X, coeff_X_pow, ← monomial_zero_one, coeff_monomial]
+        rw [coeff_X, ← monomial_zero_one, coeff_monomial]
         have nneq3 : ¬(N = 3) := Nat.ne_of_gt h
         have nneq1 : ¬(1 = N) := by 
           apply Nat.ne_of_lt

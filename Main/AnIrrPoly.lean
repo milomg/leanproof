@@ -6,6 +6,7 @@ import Mathlib.RingTheory.Coprime.Basic
 import Mathlib.RingTheory.Int.Basic
 import Mathlib.Algebra.GCDMonoid.Basic
 import Mathlib.Algebra.GroupPower.Lemmas
+import Mathlib.Init.Data.Int.CompLemmas
 
 lemma dvd_coprime_implies_natAbs_one (a b : ℤ) (h : a ∣ b) (h2 : (Int.gcd a b) = 1) : Int.natAbs a = 1 := by
   rw [← Nat.dvd_one, ← Int.ofNat_dvd_right]
@@ -18,13 +19,13 @@ theorem x3x1norat : ¬ ∃ (x : ℚ), x*x * x + x + 1=0 := by
   simp [← pow_two]
   have twoone_three: 2 + 1 = 3 := by simp
   have threeone_four: 3 + 1 = 4 := by simp
-  simp [Int.natAbs_pow, Nat.coprime.pow _ _ x.reduced, ← pow_succ', twoone_three, threeone_four]
+  simp [Int.natAbs_pow, Nat.Coprime.pow _ _ x.reduced, ← pow_succ', twoone_three, threeone_four]
   have asdf : Nat.gcd (Int.natAbs (x.num ^ 3 * (x.den:ℤ) + x.num * ((x.den:ℤ)^3))) (x.den ^ 4) = x.den := by
     rw [pow_succ' x.den 3, pow_succ' (x.den:ℤ), ← mul_assoc, ← Int.add_mul, Int.natAbs_mul]
     simp [Nat.gcd_mul_right]
     rw [pow_succ, ← mul_add, Int.natAbs_mul]
-    rw [mul_eq_right₀ x.den_nz, ← Nat.coprime, Nat.coprime_mul_iff_left]
-    apply And.intro (Nat.coprime.pow_right 3 x.reduced)
+    rw [mul_eq_right₀ x.den_nz, ← Nat.Coprime, Nat.coprime_mul_iff_left]
+    apply And.intro (Nat.Coprime.pow_right 3 x.reduced)
     rw [Int.natAbs_add_nonneg (sq_nonneg _) (sq_nonneg _)]
     simp [Int.natAbs_pow, pow_two (x.den)]
     exact x.reduced
