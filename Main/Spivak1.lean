@@ -2,6 +2,8 @@ import Mathlib
 
 variable {E: Type _} [NormedAddCommGroup E]
 
+local notation "⟪" x ", " y "⟫_ℝ" => @inner ℝ _ _ x y
+
 theorem oneoneonea (x: E) : ‖x‖ ≥ 0 := by
   exact norm_nonneg x
 
@@ -15,7 +17,7 @@ theorem oneonetwob [InnerProductSpace ℝ E] (x y : E) : (‖⟪x, y⟫_ℝ‖ =
   apply Iff.intro
   intro h
   cases em (‖x‖=0) with
-  | inl h2 => 
+  | inl h2 =>
     simp at h2
     use 1
     use 0
@@ -26,7 +28,7 @@ theorem oneonetwob [InnerProductSpace ℝ E] (x y : E) : (‖⟪x, y⟫_ℝ‖ =
     rw [this] at h
     match h with
     | Or.inl _ => contradiction
-    | Or.inr (⟨r,h⟩) => 
+    | Or.inr (⟨r,h⟩) =>
       use r
       use 1
       simp [h]
@@ -52,7 +54,7 @@ theorem oneonetwob [InnerProductSpace ℝ E] (x y : E) : (‖⟪x, y⟫_ℝ‖ =
       simp [h1]
     | Or.inr h2 =>
       apply h2
-      
+
 theorem oneonethree (x y: E) : (‖x+y‖≤‖x‖+‖y‖):= by
   exact norm_add_le x y
 
