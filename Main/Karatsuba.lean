@@ -17,7 +17,6 @@ def M (m n : ℕ) : ℕ := Id.run do
     z
   termination_by (n, m)
   decreasing_by
-    simp_wf
     sorry
     sorry
     sorry

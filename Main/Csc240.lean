@@ -4,7 +4,6 @@ import Mathlib.Data.Nat.Log
 import Mathlib.Tactic.Ring
 import Mathlib.Algebra.Ring.Basic
 import Mathlib.Algebra.Free
-import Mathlib.Init.Data.Nat.Lemmas
 
 lemma l1 (x : Nat) : Xor' (Even x) (Odd x) := Nat.even_xor_odd x
 
@@ -20,10 +19,9 @@ theorem q3 (n : Nat) : (∃ q: Nat, q * q = 2 * n + 1) -> (∃ y: Nat, n + 1 = y
     | ⟨r, hr⟩ =>
       apply Exists.intro r
       conv at y =>
-        simp
         rw [hr, right_distrib, one_mul, ← add_assoc,
             add_right_cancel_iff, mul_assoc, ← left_distrib]
-        simp
+        simp only [mul_eq_mul_left_iff, OfNat.ofNat_ne_zero, or_false]
       rw [← y]
       ring
 
@@ -66,7 +64,7 @@ def f (n : Nat) : Nat :=
   else f (n / 2)
   termination_by n
   decreasing_by
-    simp_wf
+    simp only [tsub_lt_self_iff, Nat.lt_one_iff, pos_of_gt, and_true, gt_iff_lt]
     have h : n ≠ 0 := by assumption
     exact Nat.zero_lt_of_ne_zero h
     have h : n ≠ 0 := by assumption
@@ -77,13 +75,13 @@ def g (n : Nat) : Nat :=
   else g (n - 2 ^ (Nat.log 2 n)) + 1
   termination_by n
   decreasing_by
-    simp_wf
+    simp only [tsub_lt_self_iff, zero_lt_two, pow_pos, and_true, gt_iff_lt]
     have h : n ≠ 0 := by assumption
     exact Nat.zero_lt_of_ne_zero h
 
 lemma log2_of_2kj (k : ℕ) (j : ℕ) (h : j < 2 ^ k): Nat.log 2 (2 ^ k + j) = k := by
   apply Nat.log_eq_of_pow_le_of_lt_pow
-  simp
+  simp only [le_add_iff_nonneg_right, zero_le]
   rw [Nat.pow_succ, Nat.mul_two]
   exact Nat.add_lt_add_left h (2 ^ k)
 
@@ -94,13 +92,15 @@ theorem can_split (n : ℕ) : (∃ k : ℕ, ∃ j : ℕ, j < 2 ^ k ∧ Nat.succ 
   . apply Nat.lt_of_add_lt_add_right (m:=2 ^ Nat.log 2 (n + 1))
     rw [Nat.sub_add_cancel, ← Nat.two_mul, ← pow_succ']
     . apply Nat.lt_pow_succ_log_self
-      simp
+      simp only [Nat.one_lt_ofNat]
     . apply Nat.pow_log_le_self 2
-      simp
+      simp only [Nat.succ_eq_add_one, ne_eq, Nat.add_eq_zero, one_ne_zero, and_false,
+        not_false_eq_true]
   . rw [Nat.add_comm (2 ^ Nat.log 2 (n + 1))]
     rw [Nat.sub_add_cancel]
     apply Nat.pow_log_le_self 2
-    simp
+    simp only [Nat.succ_eq_add_one, ne_eq, Nat.add_eq_zero, one_ne_zero, and_false,
+      not_false_eq_true]
 
 lemma pow2_inc (n m : ℕ) (h : 2 ^ n < 2^m) : n < m := by
   rw [Nat.pow_lt_pow_iff_right] at h
@@ -118,7 +118,7 @@ theorem q6 (n : ℕ) : f n = g n := by
     cases n with
     | zero =>
       rw [f, g]
-      simp
+      simp only [↓reduceIte]
     | succ n =>
       have x := can_split n
       match x with
@@ -219,7 +219,7 @@ theorem q6 (n : ℕ) : f n = g n := by
               rw [Nat.even_sub']
               exact iff_of_true kjo oo
               apply Nat.le_trans (Nat.le_of_lt k2) (Nat.le_add_right (2 ^ Nat.succ k) j)
-            rw [Nat.even_iff_not_odd] at kj1e
+            rw [← Nat.not_odd_iff_even] at kj1e
             contradiction
             have reduce : (2 ^ Nat.succ k + j - 1) / 2*2 = (2 ^ Nat.succ k / 2 + (j-1)/2)*2:=by
               rw [Nat.div_two_mul_two_of_even, add_mul, Nat.div_two_mul_two_of_even ke, Nat.div_two_mul_two_of_even jm1e]
@@ -248,13 +248,13 @@ theorem q6 (n : ℕ) : f n = g n := by
             simp at j1lt2k
             have l2 := log2_of_2kj k ((j-1)/2) j1lt2k
             rw [l2]
-            simp
+            simp only [add_tsub_cancel_left]
             apply Eq.symm
             rw [g]
             simp
             have l2 := log2_of_2kj (Nat.succ k) (j) lhs
             rw [l2]
-            simp
+            simp only [Nat.succ_eq_add_one, add_tsub_cancel_left]
             rw [← ih j]
             rw [f]
             split_ifs
@@ -263,16 +263,16 @@ theorem q6 (n : ℕ) : f n = g n := by
             rw [f]
             split_ifs with j1e0
             rw [j1e0]
-            simp
+            simp only [zero_add, Nat.zero_div, right_eq_add]
             rw [g]
-            simp
-            rw [Nat.even_iff_not_odd] at jm1e
+            simp only [↓reduceIte]
+            rw [← Nat.not_odd_iff_even] at jm1e
             contradiction
             rw [ih ((j-1)/2)]
             have x:2^k<Nat.succ n:= by
               have x:2^k<2^Nat.succ k:= by
                 rw [Nat.pow_succ]
-                simp
+                simp only [zero_lt_two, pow_pos, lt_mul_iff_one_lt_right, Nat.one_lt_ofNat]
               apply Nat.lt_of_lt_of_le x (Nat.le.intro (Eq.symm rhs))
             apply Nat.lt_trans j1lt2k x
             apply Nat.lt_of_lt_of_le lhs (Nat.le.intro (Eq.symm rhs))
@@ -285,7 +285,7 @@ theorem q6 (n : ℕ) : f n = g n := by
                 have jj2:= lt_mul_right jg0 tg0
                 apply Nat.lt_of_le_of_lt (Nat.pred_le j) jj2
                 assumption
-              simp at y
+              simp only [zero_lt_two, mul_lt_mul_right] at y
               apply Nat.add_lt_add x y
             rw [← rhs] at p1
             apply p1

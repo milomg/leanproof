@@ -1,8 +1,6 @@
-import Mathlib.RingTheory.QuotientNoetherian
 import Mathlib.RingTheory.Polynomial.GaussLemma
 import Mathlib.Tactic
 import Mathlib.Data.ZMod.Basic
-import Mathlib.Init.Data.Nat.Lemmas
 import Mathlib
 
 theorem PigeonholeNatOrds (n : Nat) : ∀ f: ({m : ℕ // m ≤ Nat.succ n} -> {m : ℕ // m < Nat.succ n}), ¬ Function.Injective f := by
@@ -25,7 +23,7 @@ theorem PigeonholeNatOrds (n : Nat) : ∀ f: ({m : ℕ // m ≤ Nat.succ n} -> {
       simp at j
       apply Subtype.eq
       apply j
-    
+
     have rhs : f { val := 1, property := Nat.succ_pos Nat.zero} = ⟨0, olt1⟩ := by
       simp
       have j := Subtype.property (f { val := 1, property := Nat.succ_pos Nat.zero})
@@ -38,7 +36,7 @@ theorem PigeonholeNatOrds (n : Nat) : ∀ f: ({m : ℕ // m ≤ Nat.succ n} -> {
     intro f
     apply by_contradiction
     simp
-    intro x
+    -- intro x
     sorry
 
 theorem obviously (a b:Nat) (h:a≤3) (h2:b>0) (h4:a>0) (h3:a+b=3): a=1∨ a=2 := by
@@ -63,26 +61,23 @@ open BigOperators Polynomial
 
 universe u v w
 
--- variable {R : Type u} [CommRing R]
-
 open Ideal DoubleQuot Polynomial
-/--
-theorem complicatedFromGauss (I : Ideal R) (f : R[X])  (proof1 : ¬ ∃ (g h : (R ⧸ I)[X]), g * h = Polynomial.map (Ideal.Quotient.mk I) f) : Irreducible f := by 
+
+
+theorem complicatedFromGauss {R : Type u} [CommRing R] (I : Ideal R) (myPoly : R[X])  (proof1 : ¬ ∃ (g h : (R ⧸ I)[X]), g * h = Polynomial.map (Ideal.Quotient.mk I) myPoly) : Irreducible myPoly := by
   contrapose proof1
   simp
   simp at proof1
 
   sorry
 --Polynomial.Monic.irreducible_of_irreducible_map
---/
+
 -- x^3 + x + 1 has no rational roots
-noncomputable def f : ℤ[X] := Polynomial.X ^ 3 + Polynomial.X + 1
-
-
+noncomputable def myPoly : ℤ[X] := Polynomial.X ^ 3 + Polynomial.X + 1
 
 variable (φ := Int.castRingHom (ZMod 2))
-theorem thisPolyNoRatRoots [CommSemiring ℤ]: ¬ ∃ (x : ℚ),  (f.map (Int.castRingHom ℚ)).eval x = 0 := by
-  -- have fprim : f.IsPrimitive := by 
+theorem thisPolyNoRatRoots [CommSemiring ℤ]: ¬ ∃ (x : ℚ),  (myPoly.map (Int.castRingHom ℚ)).eval x = 0 := by
+  -- have fprim : myPoly.IsPrimitive := by
   --   simp
   let phi := Int.castRingHom (ZMod 2)
   apply @Classical.by_contradiction
@@ -91,15 +86,14 @@ theorem thisPolyNoRatRoots [CommSemiring ℤ]: ¬ ∃ (x : ℚ),  (f.map (Int.ca
   rw [← Polynomial.IsRoot.def]
   rw [← Polynomial.dvd_iff_isRoot]
   rw [dvd_iff_exists_eq_mul_left]
-  have fIrr : Irreducible f := by
-    have _ : IsDomain (ZMod 2) := by 
-      apply ZMod.instIsDomainZModToSemiringToDivisionSemiringToSemifieldInstFieldZMod 2
-    
+  have fIrr : Irreducible myPoly := by
+    have _ : IsDomain (ZMod 2) := by
+      exact ZMod.instIsDomain 2
     apply (Polynomial.Monic.irreducible_of_irreducible_map phi)
     unfold Monic
     unfold Polynomial.leadingCoeff
-    have deg3 : natDegree f = 3 := by
-      rw [f]
+    have deg3 : natDegree myPoly = 3 := by
+      rw [myPoly]
       apply natDegree_eq_of_degree_eq_some
       apply degree_eq_of_le_of_coeff_ne_zero
       apply degree_le_of_natDegree_le
@@ -108,22 +102,23 @@ theorem thisPolyNoRatRoots [CommSemiring ℤ]: ¬ ∃ (x : ℚ),  (f.map (Int.ca
       intros N h
       rw [coeff_X, ← monomial_zero_one, coeff_monomial]
       have nneq3 : ¬(N = 3) := Nat.ne_of_gt h
-      have nneq1 : ¬(1 = N) := by 
+      have nneq1 : ¬(1 = N) := by
         apply Nat.ne_of_lt
         apply Nat.lt_trans (Nat.one_lt_succ_succ 1) h
-      have nneq0 : ¬(0 = N) := by 
+      have nneq0 : ¬(0 = N) := by
         apply Nat.ne_of_lt
         apply Nat.lt_trans (Nat.succ_pos 2) h
-      split_ifs <;> try contradiction
+      split_ifs
+      try contradiction
       simp
       simp
       rw [coeff_X, ← monomial_zero_one, coeff_monomial]
       simp
-    rw [deg3, f]
+    rw [deg3, myPoly]
     simp
     rw [coeff_X, ← monomial_zero_one, coeff_monomial]
     simp
-    unfold f
+    unfold myPoly
     simp
     apply Irreducible.mk
     rw [Polynomial.Monic.isUnit_iff]
@@ -131,18 +126,14 @@ theorem thisPolyNoRatRoots [CommSemiring ℤ]: ¬ ∃ (x : ℚ),  (f.map (Int.ca
     have fac1 : ((Polynomial.X :(ZMod 2)[X]) ^ 3 + X) = (X ^ 2 + 1)*X := by
       ring
     rw [fac1]
-    simp
-    rw [not_or]
-    apply And.intro
-    
-    . 
-      apply Polynomial.X_pow_add_C_ne_zero
-      simp
-    . apply Polynomial.X_ne_zero
-    
+    simp only [mul_eq_zero, X_ne_zero, or_false]
+
+    . apply Polynomial.X_pow_add_C_ne_zero
+      simp only [Nat.ofNat_pos]
+
     . sorry
-    
-    . 
+
+    .
       intros a b h
       have fz2deg3 : natDegree ((X : (ZMod 2)[X])^3 + X + 1) = 3 := by
         apply natDegree_eq_of_degree_eq_some
@@ -153,13 +144,14 @@ theorem thisPolyNoRatRoots [CommSemiring ℤ]: ¬ ∃ (x : ℚ),  (f.map (Int.ca
         intros N h
         rw [coeff_X, ← monomial_zero_one, coeff_monomial]
         have nneq3 : ¬(N = 3) := Nat.ne_of_gt h
-        have nneq1 : ¬(1 = N) := by 
+        have nneq1 : ¬(1 = N) := by
           apply Nat.ne_of_lt
           apply Nat.lt_trans (Nat.one_lt_succ_succ 1) h
-        have nneq0 : ¬(0 = N) := by 
+        have nneq0 : ¬(0 = N) := by
           apply Nat.ne_of_lt
           apply Nat.lt_trans (Nat.succ_pos 2) h
-        split_ifs <;> try contradiction
+        split_ifs
+        try contradiction
         simp
         simp
         rw [coeff_X, ← monomial_zero_one, coeff_monomial]
@@ -180,7 +172,7 @@ theorem thisPolyNoRatRoots [CommSemiring ℤ]: ¬ ∃ (x : ℚ),  (f.map (Int.ca
         rw [← Polynomial.natDegree_mul ane0 bne0]
         rw [← h]
         apply fz2deg3
-      
+
       match Nat.eq_zero_or_pos (natDegree b) with
       | Or.inl h =>
         apply Or.inr
@@ -206,7 +198,7 @@ theorem thisPolyNoRatRoots [CommSemiring ℤ]: ¬ ∃ (x : ℚ),  (f.map (Int.ca
 
 
           sorry
-      
-  --have deg3 : Polynomial. (Polynomial.map (Int.castRingHom ℚ f))
+
+  --have deg3 : Polynomial. (Polynomial.map (Int.castRingHom ℚ myPoly))
   --rw [Polynomial.IsPrimitive.Int.irreducible_iff_irreducible_map_cast]
   sorry

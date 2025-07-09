@@ -12,8 +12,8 @@ theorem x3x1norat : ¬ ∃ (x : ℚ), x*x * x + x + 1=0 := by
   intro x
   unfold Rat.normalize
   simp [← pow_two]
-  have twoone_three: 2 + 1 = 3 := by simp
-  have threeone_four: 3 + 1 = 4 := by simp
+  have twoone_three: 2 + 1 = 3 := by simp only [Nat.reduceAdd]
+  have threeone_four: 3 + 1 = 4 := by simp only [Nat.reduceAdd]
   simp [Int.natAbs_pow, Nat.Coprime.pow _ _ x.reduced, ← pow_succ, twoone_three, threeone_four]
   have asdf : Nat.gcd (Int.natAbs (x.num ^ 3 * (x.den:ℤ) + x.num * ((x.den:ℤ)^3))) (x.den ^ 4) = x.den := by
     rw [pow_succ x.den 3, pow_succ (x.den:ℤ), ← mul_assoc, ← Int.add_mul, Int.natAbs_mul]
@@ -26,9 +26,10 @@ theorem x3x1norat : ¬ ∃ (x : ℚ), x*x * x + x + 1=0 := by
     exact x.reduced
   simp [asdf]
   have dnz2 : (↑x.den ≠ (0:ℤ)) := by
-    simp
+    simp only [ne_eq, Int.natCast_eq_zero, Rat.den_ne_zero, not_false_eq_true]
   conv in ((x.den:ℤ)^3) => rw [pow_succ]
-  rw [← mul_assoc, ← add_mul, Int.mul_div_cancel _ dnz2]
+  rw [← mul_assoc, ← add_mul]
+  simp only [ne_eq, Int.natCast_eq_zero, Rat.den_ne_zero, not_false_eq_true, mul_div_cancel_right₀]
   rw [pow_succ _ 3, Int.mul_ediv_cancel _ dnz2]
   intro num
   have dendvdnum3: ((x.den:ℤ) ∣ (x.num ^ 3)) := by
